@@ -1,11 +1,18 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox
-import time,winsound
+import time,winsound,random,string
 
 global testStr,checkWindow
-testStr = "SID"
+global count
+count=4  # the number of times the captcha will repeat itself
+strlen=12  # length of captcha string
+testStr = ''  # the string being used as captcha
 """checker section"""
+
+
+def generateTestStr():
+	return ''.join(random.choices(string.ascii_letters+string.punctuation+ string.digits, k=strlen))
 
 
 def drawCheckWindow(alarmMeassage):
@@ -21,34 +28,43 @@ def drawCheckWindow(alarmMeassage):
 
 
 def on_closing():
-	messagebox.showinfo("Not permitted","you are not allowed to close this window without correctly answering the question")
+	messagebox.showinfo("Not permitted","you are not allowed to close this "
+	                                    "window without correctly answering the question")
+
+
 # creating widget for check window
 def drawBasics(alarmMessage):
-
+	global testStr
+	testStr=generateTestStr()
 	message=Label(checkWindow,text=
 	f"ALARM LABELLED\n{alarmMessage}\n IS PLAYING!!!")
 	message.grid(row=0,column=0)
 
+	counter=Label(checkWindow,text=f"captchas left: {count-1}")
+	counter.grid(row=1,column=0)
+
 	checkText = Label(checkWindow, text=f"Enter this text below:{testStr}")
-	checkText.grid(row=1, column=0)
+	checkText.grid(row=2, column=0)
 
 	global captchaBox
 	captchaBox = Entry(checkWindow, width=15)
-	captchaBox.grid(row=2, column=0)
+	captchaBox.grid(row=3, column=0)
 
 	global checkButton
 	checkButton = Button(checkWindow, text="Check!", command=check)
-	checkButton.grid(row=3, column=0)
+	checkButton.grid(row=4, column=0)
 
 
 def check():
-	global captchaBox,checkButton,label3
+	global captchaBox,checkButton,label3,entry2,count
 	if captchaBox.get()==testStr:
-		winsound.PlaySound("*", winsound.SND_ASYNC)
+		count-=1
 		messagebox.showinfo("test passed!!!", "Click on ok to exit")
 		checkWindow.destroy()
+		if count>0:print(count);drawCheckWindow(entry2.get())
+	if count==0:
+		winsound.PlaySound("*", winsound.SND_ASYNC)
 		label3.config(text="NO ALARM DUE")
-
 	else:
 		messagebox.showinfo("wrong answer", "retry after clicking ok")
 
@@ -133,8 +149,13 @@ def submit():
 
 
 if __name__=="__main__":
+	print("program running...")
 	root=tk.Tk()
 	root.title("Annoying Alarm Clock")
 	root.geometry("500x210")
 	createWidgets()
 	root.mainloop()
+#play sound indefinetly
+#winsound.PlaySound('C:/Windows/Media/notify.wav', winsound.SND_LOOP + winsound.SND_ASYNC)
+#stop playind sound
+#winsound.PlaySound("*",winsound.SND_ASYNC)
